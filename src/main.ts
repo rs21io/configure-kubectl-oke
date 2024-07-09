@@ -89,7 +89,9 @@ export async function configureKubectl(): Promise<void> {
 
     // Inputs
     const clusterOCID = core.getInput("cluster", { required: true })
+    // const clusterOCID = "ocid1.cluster.oc1.phx.aaaaaaaa2ajg5xcgwjlhcj5l7faqqmwptwjhxe6trxr36fb2bcyykxa2l2nq"
     const enablePrivateEndpoint = core.getInput("enablePrivateEndpoint").toLowerCase() === "true"
+    const enablePrivateEndpoint = true
 
     const authProvider = new SimpleAuthenticationDetailsProvider(tenancy, user, fingerprint, privateKey, null, region)
 
@@ -102,6 +104,7 @@ export async function configureKubectl(): Promise<void> {
         clusterId: clusterOCID
       })
     ).cluster
+    // console.log(oke)
 
     if (oke && oke.id && oke.kubernetesVersion && (oke.endpointConfig?.isPublicIpEnabled || enablePrivateEndpoint)) {
       const kubectlPath = await getKubectl(oke.kubernetesVersion)
