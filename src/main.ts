@@ -105,13 +105,18 @@ export async function configureKubectl(): Promise<void> {
       })
     ).cluster
     // console.log(oke)
+    core.info(`Oracle Container Engine for Kubernetes Cluster: ${oke.id}`)
+    core.info(`Oracle Container Engine for Kubernetes Version: ${oke.kubernetesVersion}`)
+    core.info(`Oracle Container Engine for Kubernetes Public IP Enabled: ${oke.endpointConfig?.isPublicIpEnabled}`)
 
     if (oke && oke.id && oke.kubernetesVersion && (oke.endpointConfig?.isPublicIpEnabled || enablePrivateEndpoint)) {
       const kubectlPath = await getKubectl(oke.kubernetesVersion)
       core.addPath(kubectlPath)
-
+      core.info(`kubectl path: ${kubectlPath}`)
       const clusterEndpoint = ce.models.CreateClusterKubeconfigContentDetails.Endpoint
-
+      core.info(
+        `Oracle Container Engine for Kubernetes Cluster Endpoint: ${enablePrivateEndpoint ? clusterEndpoint.PrivateEndpoint : clusterEndpoint.PublicEndpoint}`
+      )
       const kubeconfig = await getStringFromResponseBody(
         Readable.fromWeb(
           (
@@ -125,14 +130,14 @@ export async function configureKubectl(): Promise<void> {
           ).value as ReadableStream
         )
       )
-
+      core.info(`kubeconfig: ${kubeconfig}`)
       const kubeconfigPath = path.join(os.homedir(), ".kube")
       const kubeconfigFile = path.join(kubeconfigPath, "config")
 
       if (!fs.existsSync(kubeconfigPath)) {
         fs.mkdirSync(kubeconfigPath)
       }
-
+      core.info(`kubeconfig path: ${kubeconfigFile}`)
       fs.writeFileSync(kubeconfigFile, kubeconfig, {
         mode: 0o600,
         encoding: "utf-8"

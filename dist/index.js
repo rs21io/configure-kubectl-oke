@@ -88638,10 +88638,15 @@ async function configureKubectl() {
             clusterId: clusterOCID
         })).cluster;
         // console.log(oke)
+        core.info(`Oracle Container Engine for Kubernetes Cluster: ${oke.id}`);
+        core.info(`Oracle Container Engine for Kubernetes Version: ${oke.kubernetesVersion}`);
+        core.info(`Oracle Container Engine for Kubernetes Public IP Enabled: ${oke.endpointConfig?.isPublicIpEnabled}`);
         if (oke && oke.id && oke.kubernetesVersion && (oke.endpointConfig?.isPublicIpEnabled || enablePrivateEndpoint)) {
             const kubectlPath = await getKubectl(oke.kubernetesVersion);
             core.addPath(kubectlPath);
+            core.info(`kubectl path: ${kubectlPath}`);
             const clusterEndpoint = ce.models.CreateClusterKubeconfigContentDetails.Endpoint;
+            core.info(`Oracle Container Engine for Kubernetes Cluster Endpoint: ${enablePrivateEndpoint ? clusterEndpoint.PrivateEndpoint : clusterEndpoint.PublicEndpoint}`);
             const kubeconfig = await (0, oci_common_1.getStringFromResponseBody)(stream_1.Readable.fromWeb((await ceClient.createKubeconfig({
                 clusterId: oke.id,
                 createClusterKubeconfigContentDetails: {
@@ -88649,11 +88654,13 @@ async function configureKubectl() {
                     endpoint: enablePrivateEndpoint ? clusterEndpoint.PrivateEndpoint : clusterEndpoint.PublicEndpoint
                 }
             })).value));
+            core.info(`kubeconfig: ${kubeconfig}`);
             const kubeconfigPath = path.join(os.homedir(), ".kube");
             const kubeconfigFile = path.join(kubeconfigPath, "config");
             if (!fs.existsSync(kubeconfigPath)) {
                 fs.mkdirSync(kubeconfigPath);
             }
+            core.info(`kubeconfig path: ${kubeconfigFile}`);
             fs.writeFileSync(kubeconfigFile, kubeconfig, {
                 mode: 0o600,
                 encoding: "utf-8"
