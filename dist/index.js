@@ -88613,32 +88613,40 @@ async function getKubectl(version) {
  */
 async function configureKubectl() {
     try {
-        core.info("Configuring kubectl v0709.1705");
+        core.info("Configuring kubectl v0709.1711");
         if (!fs.existsSync(path.join(os.homedir(), ".oci-cli-installed"))) {
             core.startGroup("Installing Oracle Cloud Infrastructure CLI");
             await exec.exec("python -m pip install oci-cli");
             fs.writeFileSync(path.join(os.homedir(), ".oci-cli-installed"), "success");
             core.endGroup();
         }
+        core.info("Ran python -m pip install oci-cli");
         // Required environment variables
         const tenancy = process.env.OCI_CLI_TENANCY || "";
         const user = process.env.OCI_CLI_USER || "";
         const fingerprint = process.env.OCI_CLI_FINGERPRINT || "";
         const privateKey = process.env.OCI_CLI_KEY_CONTENT || "";
         const region = oci_common_1.Region.fromRegionId(process.env.OCI_CLI_REGION || "");
+        core.info(`OCI CLI Region: ${region.regionId}`);
+        core.info(`OCI CLI Tenancy: ${tenancy}`);
+        core.info(`OCI CLI User: ${user}`);
+        core.info(`OCI CLI Fingerprint: ${fingerprint}`);
         // Inputs
         const clusterOCID = core.getInput("cluster", { required: true });
         // const clusterOCID = "ocid1.cluster.oc1.phx.aaaaaaaa2ajg5xcgwjlhcj5l7faqqmwptwjhxe6trxr36fb2bcyykxa2l2nq"
         const enablePrivateEndpoint = core.getInput("enablePrivateEndpoint").toLowerCase() === "true";
         // const enablePrivateEndpoint = true
+        core.info(`OCI CLI Cluster OCID: ${clusterOCID}`);
+        core.info(`OCI CLI Enable Private Endpoint: ${enablePrivateEndpoint}`);
         const authProvider = new oci_common_1.SimpleAuthenticationDetailsProvider(tenancy, user, fingerprint, privateKey, null, region);
+        core.info("OCI Authentication Details Provider created");
         const ceClient = new ce.ContainerEngineClient({
             authenticationDetailsProvider: authProvider
         });
+        core.info("OCI Container Engine Client created");
         const oke = (await ceClient.getCluster({
             clusterId: clusterOCID
         })).cluster;
-        // console.log(oke)
         core.info(`Oracle Container Engine for Kubernetes Cluster: ${oke.id}`);
         core.info(`Oracle Container Engine for Kubernetes Version: ${oke.kubernetesVersion}`);
         core.info(`Oracle Container Engine for Kubernetes Public IP Enabled: ${oke.endpointConfig?.isPublicIpEnabled}`);
