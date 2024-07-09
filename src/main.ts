@@ -73,6 +73,7 @@ async function getKubectl(version: string): Promise<string> {
  */
 export async function configureKubectl(): Promise<void> {
   try {
+    core.info("Configuring kubectl v0709.1705")
     if (!fs.existsSync(path.join(os.homedir(), ".oci-cli-installed"))) {
       core.startGroup("Installing Oracle Cloud Infrastructure CLI")
       await exec.exec("python -m pip install oci-cli")
