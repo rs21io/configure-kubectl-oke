@@ -88626,10 +88626,10 @@ async function configureKubectl() {
         const privateKey = process.env.OCI_CLI_KEY_CONTENT || "";
         const region = oci_common_1.Region.fromRegionId(process.env.OCI_CLI_REGION || "");
         // Inputs
-        // const clusterOCID = core.getInput("cluster", { required: true })
-        const clusterOCID = "ocid1.cluster.oc1.phx.aaaaaaaa2ajg5xcgwjlhcj5l7faqqmwptwjhxe6trxr36fb2bcyykxa2l2nq";
-        // const enablePrivateEndpoint = core.getInput("enablePrivateEndpoint").toLowerCase() === "true"
-        const enablePrivateEndpoint = true;
+        const clusterOCID = core.getInput("cluster", { required: true });
+        // const clusterOCID = "ocid1.cluster.oc1.phx.aaaaaaaa2ajg5xcgwjlhcj5l7faqqmwptwjhxe6trxr36fb2bcyykxa2l2nq"
+        const enablePrivateEndpoint = core.getInput("enablePrivateEndpoint").toLowerCase() === "true";
+        // const enablePrivateEndpoint = true
         const authProvider = new oci_common_1.SimpleAuthenticationDetailsProvider(tenancy, user, fingerprint, privateKey, null, region);
         const ceClient = new ce.ContainerEngineClient({
             authenticationDetailsProvider: authProvider
@@ -88637,7 +88637,7 @@ async function configureKubectl() {
         const oke = (await ceClient.getCluster({
             clusterId: clusterOCID
         })).cluster;
-        console.log(oke);
+        // console.log(oke)
         if (oke && oke.id && oke.kubernetesVersion && (oke.endpointConfig?.isPublicIpEnabled || enablePrivateEndpoint)) {
             const kubectlPath = await getKubectl(oke.kubernetesVersion);
             core.addPath(kubectlPath);
